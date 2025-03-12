@@ -1,6 +1,10 @@
 #ifndef LIST_H
 #define LIST_H
 
+#include <iostream>
+#include <iterator>
+#include <memory>
+
 template <typename T>
 class List {
 private:
@@ -11,22 +15,20 @@ private:
         Node(const T&);
         template<typename... Args>
         Node(Args&&...);
-    }
+    };
 
     Node* head;
-    Node* timeva;
+    Node* tail;
     size_t size;
 
 public:
+    class iterator;
+    class const_iterator;
     using value_type = T;
     using size_type = std::size_t;
     using difference_type= std::ptrdiff_t;
     using reference = value_type&;
-    using const_refernce = const value_type&;
-    using pointer = Allocator::pointer;
-    using const_pointer = Allocator::const_pointer;
-    using reverese_iterator = std::reverse_iterator<iterator>;
-    using const_reverse_iterator = std::reverse_iterator<const_iterator>;
+    using const_reference = const value_type&;
 
     class iterator {
     public:
@@ -45,6 +47,7 @@ public:
         iterator operator--(int);
         bool operator==(const iterator&) const;
         bool operator!=(const iterator&) const;
+        friend class List<T>;
     private:
         Node* node_ptr;
     };
@@ -85,7 +88,7 @@ public:
         reverse_iterator& operator++();
         reverse_iterator& operator--();
         reverse_iterator operator++(int);
-        reverese_iterator operator--(int);
+        reverse_iterator operator--(int);
         bool operator==(const reverse_iterator&) const;
         bool operator!=(const reverse_iterator&) const;
     private:
@@ -123,21 +126,27 @@ public:
     template<class InputIt>
     void assign(InputIt, InputIt);
 
-    void assign(std::iterator_list<value_type>);
+    void assign(std::initializer_list<value_type>);
 
     reference front();
     const_reference front() const;
-    size_type size();
     reference back(); 
     const_reference back() const;
     void clear();
     void push_back(const T&);
+    iterator insert(iterator, T&);
     iterator insert(const_iterator, const T&);
     iterator insert(const_iterator, T&&);
+    iterator insert(iterator, T&&);
     iterator insert(const_iterator, size_type, const T&);
-
+    iterator insert(iterator, size_type, T&);
+    iterator insert(iterator, size_type, T&&);
+    
     template<class InputIt>
     iterator insert(const_iterator, InputIt, InputIt);
+
+    template<class InputIt>
+    iterator insert(iterator, InputIt, InputIt);
 
     iterator insert(const_iterator, std::initializer_list<T>);
 
@@ -148,9 +157,6 @@ public:
     iterator erase(iterator, iterator);
     iterator erase(const_iterator, const_iterator);
     
-    template <typename... Args>
-    void emplace_back(Args&&...) ;
-
     template<typename... Args>
     reference emplace_back(Args&&...);
 
@@ -163,9 +169,6 @@ public:
 
     template<std::ranges::range R>
     void prepend_range(R&&);
-
-    template<typename... Args>
-    void emplace_front(Args&&...);
 
     template<typename... Args>
     reference emplace_front(Args&&...);
@@ -182,8 +185,10 @@ public:
     reverse_iterator rend();
     const_reverse_iterator rbegin() const;
     const_reverse_iterator rend() const;
-    size_type size() const;
+    size_type getSize() const;
     bool empty();
 };
+
+#include "listImplementation.tpp"
 
 #endif
